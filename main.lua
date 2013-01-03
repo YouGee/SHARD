@@ -13,8 +13,10 @@ function love.load()
 
     -- world size: constants
     worldsize = {}
+    worldsize.tiles = {}
     worldsize.tiles.x = 12   -- world size (in number of tiles)
     worldsize.tiles.y = 12   -- value must be even, because a 4x4 zone hold the dragon's lair in the center of the map
+    worldsize.pixel = {}
     worldsize.pixel.x = world.tilesize.x*tile_size_x    -- world size (in pixels)
     worldsize.pixel.y = world.tilesize.y*tile_size_y
 
@@ -125,11 +127,12 @@ function love.draw()
 
 end
 
-function love.load()
-  cursor = love.graphics.newImage("crosshair.png")
-  love.mouse.setVisible(false)
-  love.mouse.setGrab(true)
+-- graphic mouse cursor HOWTO
 
-  -- call it in love.draw()
-  -- love.graphics.draw(cursor, love.mouse.getX() - cursor:getWidth() / 2, love.mouse.getY() - cursor:getHeight() / 2)
-end
+-- declare in love.load()
+    -- cursor = love.graphics.newImage("crosshair.png")
+    -- love.mouse.setVisible(false)
+    -- love.mouse.setGrab(true)
+
+-- call it in love.draw()
+    -- love.graphics.draw(cursor, love.mouse.getX() - cursor:getWidth() / 2, love.mouse.getY() - cursor:getHeight() / 2)
