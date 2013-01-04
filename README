@@ -1,4 +1,14 @@
-SHARD stands for "Simple Hit And Run Dungeoncrawler"
-The name's tribute to  R.A. Salvatore's book, "The Crystal Shard" (see http://en.wikipedia.org/wiki/The_Crystal_Shard).
-SHARD will perhaps be one day a playable duneon crawler like, if I manage to masterize Lua and Love (https://love2d.org) enough :)
-Stay tuned.
+
+                            - SHARD -
+
+           SHARD: stands for "Simple Hit And Run Dungeoncrawler"
+         Meaning: tribute to R.A. Salvatore's "The Crystal Shard" http://en.wikipedia.org/wiki/The_Crystal_Shard
+            Type: 2D turn by turn dungeon crawler
+     Inspiration: Dungeonquest board game http://www.fantasyflightgames.com/edge_minisite.asp?eidm=115
+        Language: Lua http://www.lua.org
+       Framework: Löve https://love2d.org
+Planned versions: * v1: solo-only game
+                  * v2: AI cooperative players added
+                  * v3: network cooperative multiplayer added
+          Author: http://www.unexpectedguest.com
+            When: It's done :)
