@@ -8,7 +8,8 @@ function love.load()
     if arg and arg[#arg] == "-debug" then require("mobdebug").start() end
     
     -- tiles graphics
-    tile_black = love.graphics.newImage("Media/Graphic/Tiles/tile_black.png")
+    tile_black_IMG = love.graphics.newImage("Media/Graphic/Tiles/tile_black.png")
+    player_IMG = love.graphics.newImage("Media/Graphic/Sprites/S_Heroe_Warrior.png")
 
     -- tile size: constant
     tile_size = 96
@@ -25,90 +26,90 @@ function love.load()
     -- Creation of the multi-dimensional array "World"
     worldAttribs = {"status","type","terrain","graphic", "monster"}
     world = {}          -- create the matrix
-    for lig=1,worldsize.tiles.y do
-        world[lig] = {}     -- create a new row
+    for lin=1,worldsize.tiles.y do
+        world[lin] = {}     -- create a new row
         for row=1,worldsize.tiles.x do
-            world[lig][row] = {} -- create a new line
+            world[lin][row] = {} -- create a new line
             for i=1, table.maxn(worldAttribs) do
-                world[lig][row][worldAttribs[i]] = {}
+                world[lin][row][worldAttribs[i]] = {}
             end
         end
     end
 
     -- world array initialization
     world = {}
-    for lig=1,worldsize.tiles.y do
-        world[lig] = {}
+    for lin=1,worldsize.tiles.y do
+        world[lin] = {}
         for row=1,worldsize.tiles.x do
-            world[lig][row] = {}
-            world[lig][row]["status"] = "fog" -- status of the tile fog|explored
-            world[lig][row]["type"] = "dungeon" -- exit|boundary|dungeon|lair
-            world[lig][row]["terrain"] = {} -- nature of the tile terrain: all different rooms
-            world[lig][row]["graphic"] = tile_black -- unexplored tile
-            world[lig][row]["monster"] = {} -- monster on the tile
+            world[lin][row] = {}
+            world[lin][row]["status"] = "fog" -- status of the tile fog|explored
+            world[lin][row]["type"] = "dungeon" -- exit|boundary|dungeon|lair
+            world[lin][row]["terrain"] = {} -- nature of the tile terrain: all different rooms
+            world[lin][row]["graphic"] = tile_black_IMG -- unexplored tile
+            world[lin][row]["monster"] = {} -- monster on the tile
 
             -- special tiles:
             -- lair?
-            if (lig == worldsize.tiles.x/2) and (row == worldsize.tiles.y/2) then
-                world[lig][row]["type"] = "lair"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_lair_upperleft -- upper left dragon's lair
-            elseif (lig == worldsize.tiles.x/2) and (row == (worldsize.tiles.y/2)+1) then
-                world[lig][row]["type"] = "lair"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_lair_downleft -- down left dragon's lair
-            elseif (lig == (worldsize.tiles.x/2)+1) and (row == worldsize.tiles.y/2) then
-                world[lig][row]["type"] = "lair"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_lair_upperright -- upper right dragon's lair
-            elseif (lig == (worldsize.tiles.x/2)+1) and (row == (worldsize.tiles.y/2)+1) then
-                world[lig][row]["type"] = "lair"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_lair_downright -- down right dragon's lair
+            if (lin == worldsize.tiles.x/2) and (row == worldsize.tiles.y/2) then
+                world[lin][row]["type"] = "lair"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_lair_upperleft -- upper left dragon's lair
+            elseif (lin == worldsize.tiles.x/2) and (row == (worldsize.tiles.y/2)+1) then
+                world[lin][row]["type"] = "lair"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_lair_downleft -- down left dragon's lair
+            elseif (lin == (worldsize.tiles.x/2)+1) and (row == worldsize.tiles.y/2) then
+                world[lin][row]["type"] = "lair"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_lair_upperright -- upper right dragon's lair
+            elseif (lin == (worldsize.tiles.x/2)+1) and (row == (worldsize.tiles.y/2)+1) then
+                world[lin][row]["type"] = "lair"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_lair_downright -- down right dragon's lair
 
             -- four corners of the map?
-            elseif (lig == 1) and (row == 1) then
+            elseif (lin == 1) and (row == 1) then
                 -- top left
-                world[lig][row]["type"] = "exit"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_exit_topleft
-            elseif (lig == 1) and (row == worldsize.tiles.x) then
+                world[lin][row]["type"] = "exit"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_exit_topleft
+            elseif (lin == 1) and (row == worldsize.tiles.x) then
                 -- top right
-                world[lig][row]["type"] = "exit"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_exit_topright
-            elseif (lig == worldsize.tiles.y) and (row == 1) then
+                world[lin][row]["type"] = "exit"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_exit_topright
+            elseif (lin == worldsize.tiles.y) and (row == 1) then
                 -- bottom left
-                world[lig][row]["type"] = "exit"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_exit_bottomleft
-            elseif (lig == worldsize.tiles.y) and (row == worldsize.tiles.x) then
+                world[lin][row]["type"] = "exit"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_exit_bottomleft
+            elseif (lin == worldsize.tiles.y) and (row == worldsize.tiles.x) then
                 -- bottom right
-                world[lig][row]["type"] = "exit"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_exit_bottomleft
+                world[lin][row]["type"] = "exit"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_exit_bottomleft
 
             -- boundaries?
-            elseif (lig == 1) and (row ~= 1) and (row ~= worldsize.tiles.x) then
+            elseif (lin == 1) and (row ~= 1) and (row ~= worldsize.tiles.x) then
                 -- upper boundary
-                world[lig][row]["type"] = "boundary"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_boundary_up
-            elseif (lig == worldsize.tiles.y) and (row ~= 1) and (row ~= worldsize.tiles.x) then
+                world[lin][row]["type"] = "boundary"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_boundary_up
+            elseif (lin == worldsize.tiles.y) and (row ~= 1) and (row ~= worldsize.tiles.x) then
                 -- bottom boundary
-                world[lig][row]["type"] = "boundary"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_boundary_down
-            elseif (row == 1) and (lig ~= 1) and (lig ~= worldsize.tiles.x) then
+                world[lin][row]["type"] = "boundary"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_boundary_down
+            elseif (row == 1) and (lin ~= 1) and (lin ~= worldsize.tiles.x) then
                 -- left boundary
-                world[lig][row]["type"] = "boundary"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_boundary_left
-            elseif (row == worldsize.tiles.x) and (lig ~= 1) and (lig ~= worldsize.tiles.x) then
+                world[lin][row]["type"] = "boundary"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_boundary_left
+            elseif (row == worldsize.tiles.x) and (lin ~= 1) and (lin ~= worldsize.tiles.x) then
                 -- right boundary
-                world[lig][row]["type"] = "boundary"
-                world[lig][row]["status"] = "explored"
-                world[lig][row]["graphic"] = tile_boundary_right
+                world[lin][row]["type"] = "boundary"
+                world[lin][row]["status"] = "explored"
+                world[lin][row]["graphic"] = tile_boundary_right
             end
         end
     end
@@ -130,16 +131,29 @@ function love.draw()
     -- draws all stuff to the screen
 
     -- Map draw
-    for lig=1,worldsize.tiles.y do
+    for lin=1,worldsize.tiles.y do
         for row=1,worldsize.tiles.x do
-            if (world[lig][row]["graphic"] ~= nil) then
-                x_upperleftcorner = (row-1)*tile_size
-                y_upperleftcorner = (lig-1)*tile_size
-                love.graphics.draw(tile_black, x_upperleftcorner, y_upperleftcorner)
+            x = centerOfCell(row)
+            y = centerOfCell(lin)
+            if (world[lin][row]["graphic"] ~= nil) then
+                love.graphics.draw(tile_black_IMG,x,y,math.rad(0),1,1,tile_size/2,tile_size/2)
             end
+            love.graphics.print(".",x,y)
         end
     end
 
+    -- Draw player at starting position
+    x = centerOfCell(2)
+    y = centerOfCell(worldsize.tiles.y-1)
+    imageXSize = player_IMG:getWidth()
+    imageYSize = player_IMG:getHeight()
+    love.graphics.draw(player_IMG,x,y,math.rad(0),1,1,imageXSize/2,imageYSize/2)
+
+end
+
+function centerOfCell(logicalC)
+    -- turns a games tile coordinate into from up/left pixel coordinate
+    return ((logicalC-1)*tile_size)+(tile_size/2)
 end
 
 -- Custom graphic mouse cursor HOWTO
