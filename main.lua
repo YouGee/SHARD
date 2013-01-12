@@ -1,6 +1,7 @@
 -- SHARD 1.0.1
 -- (c)UG 2013
 
+
 function love.load()
     -- loads all stuff and assets we need for our game
     
@@ -22,6 +23,16 @@ function love.load()
     worldsize.pixel = {}
     worldsize.pixel.x = worldsize.tiles.x*tile_size    -- world size (in pixels)
     worldsize.pixel.y = worldsize.tiles.y*tile_size
+
+    -- Command panel
+    panel_IMG = love.graphics.newImage("Media/Graphic/Panel/Panel.png")
+    panelWidth = panel_IMG:getWidth()
+    panelHeight = panel_IMG:getHeight()
+
+    -- Display Mode
+    xdisplay = tile_size*worldsize.tiles.x+panelWidth
+    ydisplay = math.max(tile_size*worldsize.tiles.y,panelHeight)
+    success = love.graphics.setMode(xdisplay,ydisplay,false,true,0)
 
     -- Creation of the multi-dimensional array "World"
     worldAttribs = {"status","type","terrain","graphic", "monster"}
@@ -120,11 +131,44 @@ function love.load()
     -- actors
     actors = {}
 
+    -- hero starts bottom left
+    hero = {}
+    hero.x = 2 -- x cell
+    hero.y = worldsize.tiles.y-1 -- y cell
+    hero.orient = 0 -- up
+
+    -- mouse cursor
+    cursorImg = love.graphics.newImage("Media/Graphic/Mouse/Sword.png") -- load in a custom mouse image
+    love.mouse.setVisible(false)
+    love.mouse.setGrab(true)
+
+    -- turn management
+    turn = {}
+    turn.current = 0
+    turn.max = 20
+    turn.next = true
+
 end
 
 function love.update(dt)
     -- is called before a frame is drawn, all math should be done in here
 
+    -- keyboard actions for our hero
+    if (turn.next == true) then
+        if love.keyboard.isDown("left") then
+            hero.x = hero.x - 1
+            hero.orient = 240
+        elseif love.keyboard.isDown("right") then
+            hero.x = hero.x + 1
+            hero.orient = 90
+        elseif love.keyboard.isDown("up") then
+            hero.y = hero.y - 1
+            hero.orient = 0
+        elseif love.keyboard.isDown("down") then
+            hero.y = hero.y + 1
+            hero.orient = 180
+        end
+    end
 end
 
 function love.draw()
@@ -142,18 +186,33 @@ function love.draw()
         end
     end
 
-    -- Draw player at starting position
-    x = centerOfCell(2)
-    y = centerOfCell(worldsize.tiles.y-1)
+    -- Panel draw
+    x = tile_size*worldsize.tiles.x
+    love.graphics.draw(panel_IMG,x,0)
+
+    -- Draw player at current position
     imageXSize = player_IMG:getWidth()
     imageYSize = player_IMG:getHeight()
-    love.graphics.draw(player_IMG,x,y,math.rad(0),1,1,imageXSize/2,imageYSize/2)
+    x = centerOfCell(hero.x)
+    y = centerOfCell(hero.y)
+    love.graphics.draw(player_IMG,x,y,math.rad(hero.orient),1,1,imageXSize/2,imageYSize/2)
+
+    -- Draw the custom mouse cursor
+    x, y = love.mouse.getPosition() -- get the position of the mouse
+    love.graphics.draw(cursorImg, x, y) -- draw the custom mouse image
 
 end
 
 function centerOfCell(logicalC)
     -- turns a games tile coordinate into from up/left pixel coordinate
     return ((logicalC-1)*tile_size)+(tile_size/2)
+end
+
+function love.keyreleased(key)
+    -- bye bye
+    if key == "escape" then
+      love.event.push("quit")   -- actually causes the app to quit
+    end
 end
 
 -- Custom graphic mouse cursor HOWTO
