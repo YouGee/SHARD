@@ -16,6 +16,7 @@ function love.load()
     corner_IMG            = love.graphics.newImage("Media/Graphic/Tiles/corner.png")
     wall_IMG              = love.graphics.newImage("Media/Graphic/Tiles/wall.png")
     player_IMG            = love.graphics.newImage("Media/Graphic/Sprites/S_Heroe_Warrior.png")
+    shard_ICON            = love.graphics.newImage("Media/Graphic/Logo/icon32.png")
 
     -- tile size: constant
     tile_size = 96
@@ -32,6 +33,9 @@ function love.load()
     worldsize.pixel = {}
     worldsize.pixel.x = (worldsize.tiles.x*tile_size) + (2*wall_thickness)   -- world size (in pixels)
     worldsize.pixel.y = (worldsize.tiles.y*tile_size) + (2*wall_thickness)
+
+    -- game icon
+    love.graphics.setIcon(shard_ICON) -- does not work :(
 
 --[[
 
@@ -159,7 +163,7 @@ function love.load()
                 world[lin][row]["type"] = "boundary"
                 world[lin][row]["status"] = "explored"
                 world[lin][row]["graphic"] = tile_boundary_up
-            elseif (lin == worldsize.tiles.y) and (row ~= 0) and (row ~= worldsize.tiles.x+1) then
+            elseif (lin == worldsize.tiles.y+1) and (row ~= 0) and (row ~= worldsize.tiles.x+1) then
                 -- bottom boundary
                 world[lin][row]["type"] = "boundary"
                 world[lin][row]["status"] = "explored"
@@ -209,16 +213,16 @@ function love.update(dt)
     -- keyboard actions for our hero
     if (turn.next == true) then
         if love.keyboard.isDown("left") then
-            hero.x = hero.x - 1
+            hero.x = math.max(hero.x-1,1)
             hero.orient = 240
         elseif love.keyboard.isDown("right") then
-            hero.x = hero.x + 1
+            hero.x = math.min(hero.x+1,worldsize.tiles.x)
             hero.orient = 90
         elseif love.keyboard.isDown("up") then
-            hero.y = hero.y - 1
+            hero.y = math.max(hero.y-1,1)
             hero.orient = 0
         elseif love.keyboard.isDown("down") then
-            hero.y = hero.y + 1
+            hero.y = math.min(hero.y+1,worldsize.tiles.y)
             hero.orient = 180
         end
     end
@@ -354,11 +358,6 @@ function love.draw()
     
 end
 
-function pixel2tile(x)
-    -- return the tile where the pixel x belongs
-    return math.floor(x)
-end
-
 function centerOfCell(logicalRow,logicalLine)
     -- turns a games cell coordinates into from center pixel coordinates
     if (logicalRow == 0) then
@@ -376,10 +375,6 @@ function centerOfCell(logicalRow,logicalLine)
         y = wall_thickness + (logicalLine*tile_size) - (tile_size/2)
     end
     return x,y
-end
-
-function tile2cell(x,y)
-    return x+1, y+1
 end
 
 function love.keyreleased(key)
