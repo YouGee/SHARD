@@ -1,2 +1,7 @@
-v1.0.1
-	Tiled area display
+v1.0.0
+    Zoomable tiled area display
+    Background sound
+    External configuration file
+    Background sound
+    Dedicated font
+    Right information panel
