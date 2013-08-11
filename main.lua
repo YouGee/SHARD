@@ -1,4 +1,4 @@
--- SHARD 0.0.1
+-- SHARD 0.0.2
 -- (c)UG 2013
 
 
@@ -53,10 +53,7 @@ function love.load()
     chosenWorldSize = {}
     chosenWorldSize.x = allowedWorldSize[1]["x"]
     chosenWorldSize.y = allowedWorldSize[1]["y"]
-
-    for i=1,allowedWorldSizeNumber do
-        print("World size "..i.." is "..allowedWorldSize[i]["x"].."x"..allowedWorldSize[i]["y"])
-    end
+    print("Chosen world size is "..chosenWorldSize.x.."x"..chosenWorldSize.y)
 
     -- zoom is the display ratio factor, it's controlled by mouse wheel
     zoomLevel = {}
@@ -76,7 +73,7 @@ function love.load()
     debugFirstLine  = panel_IMG:getHeight()- 100
     debugDeltaLines = 20
 
-    -- Defautt color
+    -- Default color
     defaultColor = {}
     defaultColor.r, defaultColor.g, defaultColor.b, defaultColor.a = love.graphics.getColor( )
 
@@ -84,21 +81,37 @@ function love.load()
     myFont = love.graphics.newFont("Media/Fonts/Knigqst.ttf", 20)
     love.graphics.setFont(myFont)
 
+    -- Zoom dependant displayed tiled area
+    displayableTiles = {}
+    anchorTile = {} -- first bottom left cell
+    anchorTile.x = 1
+    anchorTile.y = 1
 end
 
 function love.update(dt)
         -- called before a frame is drawn, all math should be done in here
+    if love.keyboard.isDown("left") then
+        anchorTile.x = math.max(anchorTile.x-1,1)
+    elseif love.keyboard.isDown("right") then
+        anchorTile.x = math.min(anchorTile.x+1,chosenWorldSize.x)
+    elseif love.keyboard.isDown("down") then
+        anchorTile.y = math.max(anchorTile.y-1,1)
+    elseif love.keyboard.isDown("up") then
+        anchorTile.y = math.min(anchorTile.y+1,chosenWorldSize.y)
+    end
 end
 
 function love.draw()
         -- draws all stuff to the screen
 
-    -- display panel
+    -- display right panel
     love.graphics.draw(panel_IMG,xdisplaySize-panel_IMG:getWidth(),0)
 
     -- draw tiles
-    for x=1,chosenWorldSize.x do
-        for y=1,chosenWorldSize.y do
+    displayableTiles.x,displayableTiles.y = maxDisplayableTiles()
+    printDebugLine("MaxTiles "..displayableTiles.x..","..displayableTiles.y, 4, "black")
+    for x=anchorTile.x,(anchorTile.x+displayableTiles.x-1) do
+        for y=anchorTile.y,(anchorTile.y+displayableTiles.y-1) do
             drawTile(tile_black_IMG,x,y)
         end
     end
@@ -115,6 +128,7 @@ function love.draw()
 end
 
 function drawTile(ressource,logicalX,logicalY)
+    -- draw a tile at logical cell coordinates (logicalX,logicalY)
     local x,y = logical2physical(logicalX,logicalY,tile.NativeSize,tile.NativeSize)
     love.graphics.draw(ressource,x,y,0,zoomLevel.current,zoomLevel.current,0,0)
     love.graphics.print(logicalX..","..logicalY,x+(tile.NativeSize*zoomLevel.current/4),y+(tile.NativeSize*zoomLevel.current/3))
@@ -173,6 +187,17 @@ function mySetColor(aColor)
     end
 end
 
+function maxDisplayableTiles()
+    -- returns the number of tiles that can be displayed given the window size and the current zoom
+    local verticalEmptySpace = 5 -- between right most tiles and the panel
+    local xTiles = (xdisplaySize-(panel_IMG:getWidth()+verticalEmptySpace))/tile.CurrentSize
+    local yTiles = ydisplaySize/tile.CurrentSize
+    return math.min(chosenWorldSize.x,math.floor(xTiles)),math.min(chosenWorldSize.y,math.floor(yTiles))
+end
 
 -- A FAIRE
--- * Corriger le player qui ne s'affiche pas au milieu de la tile
+-- * drawTile dessine en dur les tiles à leur rangs x,y
+--   décoréler les rangs des tiles et leurs emplacements logiques
+-- * quand on appuie sur une touche, elle est prise en compte x fois de suite sur le même appui
+--   love.keyboard.setKeyRepeat(0,0) ne fonctionne pas
+-- * Centrer par défaut le zoom sur le joueur

@@ -1,4 +1,7 @@
-v1.0.0
+v0.0.2
+    Display only displayable tiles when zooming
+
+v0.0.1
     Zoomable tiled area display
     Background sound
     External configuration file
