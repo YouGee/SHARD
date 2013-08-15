@@ -1,5 +1,6 @@
 v0.0.2
     Display only displayable tiles when zooming
+    Keyboard arrows shifts the map display
 
 v0.0.1
     Zoomable tiled area display

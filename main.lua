@@ -40,7 +40,7 @@ function love.load()
         love.audio.play(WaterDrop_sfx)
     end
 
-    -- allowed world sizes
+    -- Allowed world sizes
     allowedWorldSize = {}
     allowedWorldSizeNumber = 4
     for i=1,allowedWorldSizeNumber do
@@ -49,13 +49,13 @@ function love.load()
         allowedWorldSize[i]["y"] = 8*i
     end
     
-    -- Pour l'instant, pas de choix possible pour la taille du donjon
+    -- Not yet choosable dungeon size
     chosenWorldSize = {}
     chosenWorldSize.x = allowedWorldSize[1]["x"]
     chosenWorldSize.y = allowedWorldSize[1]["y"]
     print("Chosen world size is "..chosenWorldSize.x.."x"..chosenWorldSize.y)
 
-    -- zoom is the display ratio factor, it's controlled by mouse wheel
+    -- Zoom is the display ratio factor, controlled by mouse wheel
     zoomLevel = {}
     zoomLevel.min     = 0.5
     zoomLevel.max     = 1
@@ -83,22 +83,31 @@ function love.load()
 
     -- Zoom dependant displayed tiled area
     displayableTiles = {}
-    anchorTile = {} -- first bottom left cell
+    anchorTile = {} -- first bottom left displayed cell
     anchorTile.x = 1
     anchorTile.y = 1
+    maxTile = {} -- last top right displayed cell
+
+
+    -- Tiled world definition
+    world = {}
+    for lin=1,chosenWorldSize.x do
+        world[lin] = {}
+        for row=1,chosenWorldSize.y do
+            world[lin][row] = {}
+            world[lin][row]["graphic"] = tile_black_IMG -- unexplored tile
+        end
+    end
+
+    -- Hero starts bottom left
+    hero = {}
+    hero.x,hero.y = 4,3 -- x,y cell
+    hero.orient = 0 -- up
 end
 
 function love.update(dt)
         -- called before a frame is drawn, all math should be done in here
-    if love.keyboard.isDown("left") then
-        anchorTile.x = math.max(anchorTile.x-1,1)
-    elseif love.keyboard.isDown("right") then
-        anchorTile.x = math.min(anchorTile.x+1,chosenWorldSize.x)
-    elseif love.keyboard.isDown("down") then
-        anchorTile.y = math.max(anchorTile.y-1,1)
-    elseif love.keyboard.isDown("up") then
-        anchorTile.y = math.min(anchorTile.y+1,chosenWorldSize.y)
-    end
+
 end
 
 function love.draw()
@@ -107,18 +116,36 @@ function love.draw()
     -- display right panel
     love.graphics.draw(panel_IMG,xdisplaySize-panel_IMG:getWidth(),0)
 
-    -- draw tiles
+    -- update anchorTile (zoom can change it)
     displayableTiles.x,displayableTiles.y = maxDisplayableTiles()
-    printDebugLine("MaxTiles "..displayableTiles.x..","..displayableTiles.y, 4, "black")
-    for x=anchorTile.x,(anchorTile.x+displayableTiles.x-1) do
-        for y=anchorTile.y,(anchorTile.y+displayableTiles.y-1) do
-            drawTile(tile_black_IMG,x,y)
+    if (anchorTile.x+displayableTiles.x-1) > chosenWorldSize.x then
+        anchorTile.x = 1
+    end
+    if (anchorTile.y+displayableTiles.y-1) > chosenWorldSize.y then
+        anchorTile.y = 1
+    end
+
+    -- draw tiles
+    print("------ New tiles refresh, zoom ="..zoomLevel.current.." ------")
+    print("MaxTiles "..displayableTiles.x..","..displayableTiles.y)
+    for displayedX=1,displayableTiles.x do
+        for displayedY=1,displayableTiles.y do
+            tileIDx = anchorTile.x + displayedX -1
+            tileIDy = anchorTile.y + displayedY -1
+            print("tileIDx = "..tileIDx..", tileIDy ="..tileIDy)
+            drawTile(world[tileIDx][tileIDy]["graphic"],displayedX,displayedY)
+            -- debug
+            local upperLeftX,upperLeftY = logical2physical(displayedX,displayedY,tile.NativeSize,tile.NativeSize)
+            love.graphics.print(tileIDx..","..tileIDy,upperLeftX+(tile.NativeSize*zoomLevel.current/4),upperLeftY+(tile.NativeSize*zoomLevel.current/3))
         end
     end
+    -- remember the upper right displayed tile
+    maxTile.x = anchorTile.x + displayableTiles.x - 1
+    maxTile.y = anchorTile.y + displayableTiles.y - 1
 
     -- Draw player at current position
     local offsetX,offsetY = imageOffset(player_IMG)
-    local x,y = logical2physical(4,5,tile.NativeSize,tile.NativeSize)
+    local x,y = logical2physical(hero.x+anchorTile.x-1,hero.y+anchorTile.y-1,tile.NativeSize,tile.NativeSize)
     love.graphics.draw(player_IMG,x,y,0,zoomLevel.current,zoomLevel.current,offsetX,offsetY)
     printDebugLine("Player is at "..x..","..y, 2, "black")
 
@@ -128,17 +155,13 @@ function love.draw()
 end
 
 function drawTile(ressource,logicalX,logicalY)
-    -- draw a tile at logical cell coordinates (logicalX,logicalY)
+    -- draw a tile at logical cell coordinates (logicalX,logicalY), (1,1) being bottom left
     local x,y = logical2physical(logicalX,logicalY,tile.NativeSize,tile.NativeSize)
     love.graphics.draw(ressource,x,y,0,zoomLevel.current,zoomLevel.current,0,0)
-    love.graphics.print(logicalX..","..logicalY,x+(tile.NativeSize*zoomLevel.current/4),y+(tile.NativeSize*zoomLevel.current/3))
 end
 
 function logical2physical(logicalX,logicalY,imageSizeX,imageSizeY)
-    local physicalX,physicalY
-    local physicalX =                ((logicalX-1)*imageSizeX*zoomLevel.current)
-    local physicalY = ydisplaySize - (logicalY*imageSizeY*zoomLevel.current)
-    return physicalX,physicalY
+    return ((logicalX-1)*imageSizeX*zoomLevel.current),(ydisplaySize - (logicalY*imageSizeY*zoomLevel.current))
 end
 
 function imageOffset(ressource)
@@ -151,6 +174,22 @@ function love.keyreleased(key)
     -- bye bye
     if key == "escape" then
       love.event.push("quit")   -- actually causes the app to quit
+    end
+    -- map panning
+    if key == "left" then
+        anchorTile.x = math.max(anchorTile.x-1,1)
+    elseif key == "right" then
+        -- cant we pan?
+        if maxTile.x < chosenWorldSize.x then
+            anchorTile.x = math.min(anchorTile.x+1,chosenWorldSize.x)
+        end
+    elseif key == "down" then
+        anchorTile.y = math.max(anchorTile.y-1,1)
+    elseif key == "up" then
+        -- cant we pan?
+        if maxTile.y < chosenWorldSize.y then
+            anchorTile.y = math.min(anchorTile.y+1,chosenWorldSize.y)
+        end
     end
 end
 
@@ -189,15 +228,16 @@ end
 
 function maxDisplayableTiles()
     -- returns the number of tiles that can be displayed given the window size and the current zoom
-    local verticalEmptySpace = 5 -- between right most tiles and the panel
+    local verticalEmptySpace = 5 -- pixels left blank between right most tiles and the panel
     local xTiles = (xdisplaySize-(panel_IMG:getWidth()+verticalEmptySpace))/tile.CurrentSize
     local yTiles = ydisplaySize/tile.CurrentSize
     return math.min(chosenWorldSize.x,math.floor(xTiles)),math.min(chosenWorldSize.y,math.floor(yTiles))
 end
 
--- A FAIRE
--- * drawTile dessine en dur les tiles à leur rangs x,y
---   décoréler les rangs des tiles et leurs emplacements logiques
--- * quand on appuie sur une touche, elle est prise en compte x fois de suite sur le même appui
---   love.keyboard.setKeyRepeat(0,0) ne fonctionne pas
--- * Centrer par défaut le zoom sur le joueur
+-- **BUGS**
+--  * Joueur mal positionné si zoom/panning
+--  * Gérer coorectement coordonnées logiques et coordonnées du monde pour les tiles et les acteurs
+
+-- **EVOLS**
+--  * Centrer l'affichage sur le joueur si appui sur la molette
+--  * Pour faire bouger le joueur au lieu de le téléporter : https://love2d.org/wiki/Tutorial:Gridlocked_Player
