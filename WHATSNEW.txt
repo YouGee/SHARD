@@ -1,3 +1,6 @@
+V0.0.3
+    Move and animate player, see http://www.love2d.org/wiki/AnAL
+
 v0.0.2
     Display only displayable tiles when zooming
     Keyboard arrows shifts the map display

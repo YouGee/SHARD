@@ -1,14 +1,17 @@
--- SHARD 0.0.2
--- (c)UG 2013
+-- SHARD 0.0.3
+-- (c)UG 2013, 2014
 
 
 function love.load()
         -- loads all stuff and assets
 
+    -- External librairies
+    require("AnAL")
+
     -- ZeroBrane debugger
     if arg and arg[#arg] == "-debug" then require("mobdebug").start() end
 
-    -- Load&execute ton game configuration file
+    -- Load&execute the game configuration file
     local ok, chunk, result
     ok, chunk = pcall( love.filesystem.load, "SHARD_data.lua" )
     if not ok then
