@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.title = "SHARD 0.0.2"     -- The title of the window the game is in (string)
+    t.title = "SHARD 0.0.3"     -- The title of the window the game is in (string)
     t.author = "YouGee"         -- The author of the game (string)
     t.url = "https://github.com/YouGee/SHARD"  -- The website of the game (string)
     t.identity = "SHARD"        -- The name of the save directory (string)

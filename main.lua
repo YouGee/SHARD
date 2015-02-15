@@ -1,5 +1,6 @@
 -- SHARD 0.0.3
--- (c)UG 2013, 2014
+-- Simple Hit And Run Dungeoncrawler 
+-- (c)UG 2013, 2014, 2015
 
 
 function love.load()
@@ -40,8 +41,8 @@ function love.load()
         -- destination icon
     imageRessource.dest     = love.graphics.newImage("Media/Graphic/Sprites/Shoeprint.png")
 
-    -- mouse cursor
-    cursorImg = love.graphics.newImage("Media/Graphic/Mouse/Sword.png") -- load in a custom mouse image
+    -- Mouse cursor
+    cursorImg = love.graphics.newImage("Media/Graphic/Mouse/Sword.png")
     love.mouse.setVisible(false)
     love.mouse.setGrab(false)
 
@@ -128,11 +129,11 @@ function love.load()
         end
     end
 
-    -- Hero starts bottom left
+    -- Hero starting status
     hero = {}
     hero.x,hero.y = 4,3 -- x,y cell
     hero.orient = 0 -- up
-    world[4][3]["player"] = "yes"
+    world[hero.x][hero.y]["player"] = "yes"
 
     -- Mouse
     mouse = {}
@@ -210,7 +211,7 @@ function love.draw()
     printDebugLine("minTile: "..minTile.x..","..minTile.y, "black")
     printDebugLine("maxTile: "..maxTile.x..","..maxTile.y, "black")
 
-    -- display tiles
+    -- display tiles and player
     for x=1,chosenWorldSize.x do
         for y=1,chosenWorldSize.y do
             if world[x][y]["visible"] == "yes" then
@@ -273,10 +274,15 @@ function imageOffset(ressource)
 end
 
 function love.keyreleased(key)
+    -- Used for:
+    --      * panning the map
+    --      * quitting the game
+
     -- bye bye
     if key == "escape" then
       love.event.push("quit")   -- actually causes the app to quit
     end
+
     -- map panning
     if key == "left" then
         if minTile.x > 1 then
@@ -299,6 +305,7 @@ function love.keyreleased(key)
             minTile.y = minTile.y+1
         end
     end
+
 end
 
 function love.mousepressed(x,y,button)
@@ -354,9 +361,25 @@ function playerIsNear(x,y)
     end
 end
 
--- **BUGS**
---  * Le imageOffset semble ne bien fonctionner que quand le ZoomLeval est à 1 (cf affichage des pieds jaunes si zommlevel <> 1)
 
--- **EVOLS**
---  * Centrer l'affichage sur le joueur si appui sur la molette
---  * Pour faire bouger le joueur au lieu de le téléporter : https://love2d.org/wiki/Tutorial:Gridlocked_Player
+--[[
+
+**Work In Progress**
+ * Animation du joueur :
+     * utiliser http://love2D.org/wiki/anim8 (plus pratique que les quads)
+     * mettre toutes les frames de l'animation de marche et de combat dans deux sprites .png
+ * Pointeurs de souris dynamiques :
+     * Chaussure/flèche pour se déplacer,
+     * Epée pour attaquer,
+     * Main pour interagir avec environnement
+
+**BUGS**
+ * Le imageOffset semble ne bien fonctionner que quand le ZoomLeval est à 1 (cf affichage des pieds jaunes si zommlevel <> 1)
+
+**EVOLS**
+ * Sprite de 
+ * Pour faire bouger le joueur au lieu de le téléporter : https://love2d.org/wiki/Tutorial:Gridlocked_Player
+ * Rajouter des fioles de vie aléatoires (probabilité proportionnelle à la difficulté globale)
+ * Ajouter des boutons "New" et "Quit" dans le menu
+
+]]--

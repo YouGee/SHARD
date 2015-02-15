@@ -4,7 +4,7 @@
 xdisplaySize = 900
 ydisplaySize = 600
 
--- Mute sound? yes|no
+-- Play sound? yes|no
 PlaySound = "no"
 
 return "OK"
