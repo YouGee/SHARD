@@ -27,7 +27,7 @@ function love.load()
     end
 
     -- Init display
-    success = love.graphics.setMode(xdisplaySize,ydisplaySize,false,true,0)
+    success = love.window.setMode(xdisplaySize,ydisplaySize)
 
     -- Loading graphical ressources
     imageRessource = {}
@@ -44,7 +44,7 @@ function love.load()
     -- Mouse cursor
     cursorImg = love.graphics.newImage("Media/Graphic/Mouse/Sword.png")
     love.mouse.setVisible(false)
-    love.mouse.setGrab(false)
+    love.mouse.setGrabbed(false)
 
     -- Background sound loading
     if PlaySound == "yes" then
